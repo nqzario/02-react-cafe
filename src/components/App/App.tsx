@@ -1,49 +1,42 @@
 import css from "./App.module.css";
 import CafeInfo from "../CafeInfo/CafeInfo";
-import VoteOption from "../VoteOptions/VoteOption";
+import VoteOptions from "../VoteOptions/VoteOptions";
 import VoteStats from "../VoteStats/VoteStats";
 import Notification from "../Notification/Notification";
 import { useState } from "react";
 import type { Votes, VoteType } from "../../types/votes";
 
 function App() {
-  const [vote, setVotes] = useState<Votes>({ good: 0, neutral: 0, bad: 0 });
+  const [votes, setVotes] = useState<Votes>({ good: 0, neutral: 0, bad: 0 });
 
   function handleVote(type: VoteType) {
-    const NewVotes = {
-      good: vote.good,
-      neutral: vote.neutral,
-      bad: vote.bad,
-    };
-
-    if (type === "good") {
-      NewVotes.good = NewVotes.good + 1;
-    } else if (type === "neutral") {
-      NewVotes.neutral = NewVotes.neutral + 1;
-    } else {
-      NewVotes.bad = NewVotes.bad + 1;
-    }
-    setVotes(NewVotes);
+    setVotes((prevVotes) => ({
+      ...prevVotes,
+      [type]: prevVotes[type] + 1,
+    }));
   }
+
   function resetVotes() {
     setVotes({ good: 0, neutral: 0, bad: 0 });
   }
-  const totalVotes = vote.bad + vote.good + vote.neutral;
+  const totalVotes = votes.bad + votes.good + votes.neutral;
   const positiveRate =
-    vote.bad + vote.good + vote.neutral
-      ? Math.round((vote.good / totalVotes) * 100)
+    votes.bad + votes.good + votes.neutral
+      ? Math.round((votes.good / totalVotes) * 100)
       : 0;
   return (
     <div className={css.app}>
       <CafeInfo />
-      {totalVotes > 0 ? (
-        <VoteOption onVote={handleVote} onReset={resetVotes} canReset={true} />
-      ) : (
-        <VoteOption onVote={handleVote} onReset={resetVotes} canReset={false} />
-      )}
+
+      <VoteOptions
+        onVote={handleVote}
+        onReset={resetVotes}
+        canReset={totalVotes > 0}
+      />
+
       {totalVotes > 0 ? (
         <VoteStats
-          votes={vote}
+          votes={votes}
           totalVotes={totalVotes}
           positiveRate={positiveRate}
         />
